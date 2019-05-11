@@ -1,3 +1,5 @@
+package pathFinder;
+
 import map.Coordinate;
 import map.PathMap;
 import java.util.ArrayList;

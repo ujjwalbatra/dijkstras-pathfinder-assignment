@@ -10,7 +10,8 @@ public class DijkstraPathFinder implements PathFinder {
     // TODO: You might need to implement some attributes
 
     public DijkstraPathFinder(PathMap map) {
-        // TODO :Implement
+        // make a graph of the given map
+        Graph graph = new Graph(map);
     } // end of DijkstraPathFinder()
 
 

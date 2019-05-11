@@ -1,4 +1,4 @@
-import pathFinder.DijkstraPathFinder.Vertex;
+package pathFinder;
 
 public class Edge {
     private Vertex to;
