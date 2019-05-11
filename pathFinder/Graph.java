@@ -43,12 +43,12 @@ public class Graph {
 
                 boolean edgeExist = false;
 
-                if (vertex.getCoordinate().getColumn() == vertex.getCoordinate().getColumn()
+                if (vertex.getCoordinate().getColumn() == vertex2.getCoordinate().getColumn()
                         && vertex.getCoordinate().getRow() == vertex2.getCoordinate().getRow() + 1) {
                     edgeExist = true;
                 }
 
-                if (vertex.getCoordinate().getColumn() == vertex.getCoordinate().getColumn() + 1
+                if (vertex.getCoordinate().getColumn() == vertex2.getCoordinate().getColumn() + 1
                         && vertex.getCoordinate().getRow() == vertex2.getCoordinate().getRow()) {
                     edgeExist = true;
                 }
