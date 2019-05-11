@@ -54,10 +54,14 @@ public class Graph {
                 }
 
                 if (edgeExist) {
-                    Edge edge = new Edge(vertex, vertex2, 1);
+
+                    int terrainCost = vertex2.getCoordinate().getTerrainCost();
+
+                    Edge edge = new Edge(vertex, vertex2, 1 + terrainCost);
                     vertex.addEdge(edge);
 
-                    edge = new Edge(vertex2, vertex, 1);
+                    terrainCost = vertex.getCoordinate().getTerrainCost();
+                    edge = new Edge(vertex2, vertex, 1 + terrainCost);
                     vertex2.addEdge(edge);
                 }
             }

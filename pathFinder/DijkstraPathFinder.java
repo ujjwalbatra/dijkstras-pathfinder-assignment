@@ -3,15 +3,29 @@ package pathFinder;
 import map.Coordinate;
 import map.PathMap;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class DijkstraPathFinder implements PathFinder {
-    // TODO: You might need to implement some attributes
+
+    private Graph graph;
+    private Set<Vertex> coordinatesExplored;
+    private Queue<Node> frontier;
 
     public DijkstraPathFinder(PathMap map) {
+
         // make a graph of the given map
-        Graph graph = new Graph(map);
+        this.graph = new Graph(map);
+        this.coordinatesExplored = new HashSet<>();
+
+        this.frontier = new PriorityQueue<>(new Comparator<Node>() {
+            @Override
+            public int compare(Node o1, Node o2) {
+                return o1.getWeight() - o2.getWeight();
+            }
+        });
+
+
+
     } // end of DijkstraPathFinder()
 
 
