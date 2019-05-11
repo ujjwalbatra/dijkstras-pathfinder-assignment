@@ -3,12 +3,12 @@ package pathFinder;
 public class Node {
     private Vertex vertex;
     private Vertex previous;
-    private int weight;
+    private int cost;
 
-    public Node(Vertex vertex, Vertex previous, int weight) {
+    public Node(Vertex vertex, Vertex previous, int cost) {
         this.vertex = vertex;
         this.previous = previous;
-        this.weight = weight;
+        this.cost = cost;
     }
 
     public Vertex getVertex() {
@@ -19,11 +19,11 @@ public class Node {
         return previous;
     }
 
-    public int getWeight() {
-        return weight;
+    public int getCost() {
+        return cost;
     }
 
-    public void setWeight(int weight) {
-        this.weight = weight;
+    public void setCost(int cost) {
+        this.cost = cost;
     }
 }

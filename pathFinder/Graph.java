@@ -2,39 +2,58 @@ package pathFinder;
 
 import map.Coordinate;
 import map.PathMap;
+
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Graph {
     private List<Vertex> vertices;
     private List<Edge> edges;
+    private Set<Vertex> sources;
+    private Set<Vertex> destinations;
 
     public Graph(PathMap map) {
         this.vertices = new ArrayList<>();
         this.edges = new ArrayList<>();
+        this.sources = new HashSet<>();
+        this.destinations = new HashSet<>();
 
-        this.createVertices(map.cells);
+        this.createVertices(map);
         this.createEdges();
     }
 
     /**
      * Initializes coordinates of the graph if they are not impassable
      *
-     * @param coordinates 2d array of coordinates to be added to the graph
+     * @param map containing 2d array of coordinates to be added to the graph and list of origin and destination
      */
-    private void createVertices(Coordinate[][] coordinates) {
+    private void createVertices(PathMap map) {
+        Coordinate[][] coordinates = map.cells;
+
         for (Coordinate[] row : coordinates) {
             for (Coordinate coordinate : row) {
+
+                // add vertices containing coordinates to the graph
+                Vertex vertex = null;
                 if (!coordinate.getImpassable()) {
-                    Vertex vertex = new Vertex(coordinate);
-                    vertices.add(vertex);
+                    vertex = new Vertex(coordinate);
+                    this.vertices.add(vertex);
+                }
+
+                // add vetex to the set of sources and destinations if it is an origin or dest cell
+                if (map.originCells.contains(coordinate)) {
+                    this.sources.add(vertex);
+                } else if (map.destCells.contains(coordinate)) {
+                    this.destinations.add(vertex);
                 }
             }
         }
     }
 
     /**
-     * Creates edges with weight 1 for the existing vertices in the graph
+     * Creates edges with weight 1 and terrain cost of the target for the existing vertices in the graph
      */
     private void createEdges() {
         // for every vertex pair check if they are adjacent, if yes then create an edge
@@ -53,6 +72,7 @@ public class Graph {
                     edgeExist = true;
                 }
 
+                // add terrain cost to the edge depending on the target vertex
                 if (edgeExist) {
 
                     int terrainCost = vertex2.getCoordinate().getTerrainCost();
@@ -66,5 +86,21 @@ public class Graph {
                 }
             }
         }
+    }
+
+    public Set<Vertex> getSources() {
+        return sources;
+    }
+
+    public Set<Vertex> getDestinations() {
+        return destinations;
+    }
+
+    public List<Vertex> getVertices() {
+        return vertices;
+    }
+
+    public List<Edge> getEdges() {
+        return edges;
     }
 }
