@@ -3,22 +3,21 @@ package pathFinder;
 import map.Coordinate;
 import map.PathMap;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class Graph {
     private List<Vertex> vertices;
     private List<Edge> edges;
     private Set<Vertex> sources;
     private Set<Vertex> destinations;
+    private List<Vertex> wayPoints;
 
     public Graph(PathMap map) {
         this.vertices = new ArrayList<>();
         this.edges = new ArrayList<>();
         this.sources = new HashSet<>();
         this.destinations = new HashSet<>();
+        this.wayPoints = new ArrayList<>();
 
         this.createVertices(map);
         this.createEdges();
@@ -35,18 +34,20 @@ public class Graph {
         for (Coordinate[] row : coordinates) {
             for (Coordinate coordinate : row) {
 
-                // add vertices containing coordinates to the graph
+                // add passable vertices containing coordinates to the graph
                 Vertex vertex = null;
                 if (!coordinate.getImpassable()) {
                     vertex = new Vertex(coordinate);
                     this.vertices.add(vertex);
-                }
+                } else continue;
 
                 // add vetex to the set of sources and destinations if it is an origin or dest cell
                 if (map.originCells.contains(coordinate)) {
                     this.sources.add(vertex);
                 } else if (map.destCells.contains(coordinate)) {
                     this.destinations.add(vertex);
+                } else if(map.waypointCells.contains(coordinate)) {
+                    this.wayPoints.add(vertex);
                 }
             }
         }
@@ -102,5 +103,9 @@ public class Graph {
 
     public List<Edge> getEdges() {
         return edges;
+    }
+
+    public List<Vertex> getWayPoints() {
+        return wayPoints;
     }
 }

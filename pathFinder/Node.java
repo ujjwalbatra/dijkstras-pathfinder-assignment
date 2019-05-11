@@ -19,6 +19,10 @@ public class Node {
         return previous;
     }
 
+    public void setPrevious(Vertex previous) {
+        this.previous = previous;
+    }
+
     public int getCost() {
         return cost;
     }
