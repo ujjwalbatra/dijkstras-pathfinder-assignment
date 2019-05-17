@@ -3,10 +3,7 @@ package pathFinder;
 import map.Coordinate;
 import map.PathMap;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class Graph {
     private List<Vertex> vertices;
@@ -14,6 +11,8 @@ public class Graph {
     private Set<Vertex> sources;
     private Set<Vertex> destinations;
     private List<Vertex> wayPoints;
+    private Set<Node> nodesExplored;
+    private List<Node> frontier;
 
     public Graph(PathMap map) {
         this.vertices = new ArrayList<>();
@@ -25,8 +24,11 @@ public class Graph {
         this.destinations = new HashSet<>();
         this.wayPoints = new ArrayList<>();
 
+
         this.createVertices(map);
         this.createEdges();
+        // reset frontier and nodes explored
+        this.flashMemory();
     }
 
     /**
@@ -105,6 +107,88 @@ public class Graph {
         }
     }
 
+    /**
+     * finds shortest path using dijktra's algorithm
+     *
+     * @param source      of the path
+     * @param destination of the path
+     */
+    public void tracePath(Node source, Node destination) {
+
+        if (source == null || destination == null) return;
+
+        Node currNode;
+
+        while (!this.nodesExplored.contains(destination) && !this.frontier.isEmpty()) {
+            currNode = frontier.remove(0);
+            updateNeighboursCost(currNode);
+            this.nodesExplored.add(currNode);
+        }
+    }
+
+    /**
+     * initialises the frontier with distance of source node as 0 and other nodes as infinity
+     *
+     * @param src source vertex for a path
+     */
+    public void initialiseFrontier(Vertex src) {
+        for (Vertex vertex : this.getVertices()) {
+            Node newNode;
+
+            // if node is a source then add node to frontier with distance 0.
+            // else add node with distance infinity (Integer.MAX_VALUE)
+            if (vertex == src) {
+                newNode = new Node(vertex, 0);
+                this.frontier.add(newNode);
+            } else {
+                newNode = new Node(vertex);
+                this.frontier.add(newNode);
+            }
+        }
+        this.sortFrontier();
+    }
+
+    /**
+     * this is to rearrange elements in order of priorities.
+     */
+    private void sortFrontier() {
+        this.frontier.sort(Comparator.comparingInt(Node::getCost));
+    }
+
+    /**
+     * update costs of the neighbour if it is lesser than current estimate
+     *
+     * @param node the node whose neighbours are to be updated
+     */
+    private void updateNeighboursCost(Node node) {
+
+        for (Edge edge : node.getVertex().getEdges()) {
+            for (Node unexploredNode : this.frontier) {
+
+                Vertex neighbour = edge.getTo();
+                if (unexploredNode.getVertex().equals(neighbour)) {
+                    int predecessorCost = node.getCost();
+
+                    // edge weight includes terrain cost
+                    int costOfReachingNeighbour = edge.getWeight() + predecessorCost;
+
+                    // check if cost has reduced
+                    if (unexploredNode.getCost() > costOfReachingNeighbour) {
+                        unexploredNode.setCost(costOfReachingNeighbour);
+                        unexploredNode.setPrevious(node);
+                    }
+                }
+            }
+        }
+
+        this.sortFrontier();
+    }
+
+    private void flashMemory() {
+        this.nodesExplored = new HashSet<>();
+        this.frontier = new ArrayList<>();
+    }
+
     public Set<Vertex> getSources() {
         return sources;
     }
@@ -123,5 +207,13 @@ public class Graph {
 
     public List<Vertex> getWayPoints() {
         return wayPoints;
+    }
+
+    public Set<Node> getNodesExplored() {
+        return nodesExplored;
+    }
+
+    public List<Node> getFrontier() {
+        return frontier;
     }
 }
