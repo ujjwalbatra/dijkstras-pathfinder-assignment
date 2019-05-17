@@ -1,13 +1,13 @@
 package pathFinder;
 
 public class Edge {
-    private Vertex to;
     private Vertex from;
+    private Vertex to;
     private int weight;
 
-    public Edge(Vertex to, Vertex from, int weight) {
-        this.to = to;
+    public Edge(Vertex from, Vertex to, int weight) {
         this.from = from;
+        this.to = to;
         this.weight = weight;
     }
 

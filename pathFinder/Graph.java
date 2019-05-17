@@ -3,7 +3,10 @@ package pathFinder;
 import map.Coordinate;
 import map.PathMap;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class Graph {
     private List<Vertex> vertices;
@@ -14,7 +17,10 @@ public class Graph {
 
     public Graph(PathMap map) {
         this.vertices = new ArrayList<>();
+
+        // all the edges for out neighbours. it also includes terrain cost depending on target vertex
         this.edges = new ArrayList<>();
+
         this.sources = new HashSet<>();
         this.destinations = new HashSet<>();
         this.wayPoints = new ArrayList<>();
@@ -36,17 +42,18 @@ public class Graph {
 
                 // add passable vertices containing coordinates to the graph
                 Vertex vertex = null;
+
                 if (!coordinate.getImpassable()) {
                     vertex = new Vertex(coordinate);
                     this.vertices.add(vertex);
                 } else continue;
 
-                // add vetex to the set of sources and destinations if it is an origin or dest cell
+                // add vetex to the set of sources, destinations or waypoints if it is an origin or dest cell
                 if (map.originCells.contains(coordinate)) {
                     this.sources.add(vertex);
                 } else if (map.destCells.contains(coordinate)) {
                     this.destinations.add(vertex);
-                } else if(map.waypointCells.contains(coordinate)) {
+                } else if (map.waypointCells.contains(coordinate)) {
                     this.wayPoints.add(vertex);
                 }
             }
@@ -61,19 +68,27 @@ public class Graph {
         for (Vertex vertex : this.vertices) {
             for (Vertex vertex2 : this.vertices) {
 
+                if (vertex.equals(vertex2)) continue;
+
                 boolean edgeExist = false;
 
-                if (vertex.getCoordinate().getColumn() == vertex2.getCoordinate().getColumn()
-                        && vertex.getCoordinate().getRow() == vertex2.getCoordinate().getRow() + 1) {
+                //  check if they are adjacent
+                int vertR = vertex.getCoordinate().getRow();
+                int vertC = vertex.getCoordinate().getColumn();
+                int vert2R = vertex2.getCoordinate().getRow();
+                int vert2C = vertex2.getCoordinate().getColumn();
+
+                if (vertC == vert2C && vertR + 1 == vert2R) {
                     edgeExist = true;
                 }
 
-                if (vertex.getCoordinate().getColumn() == vertex2.getCoordinate().getColumn() + 1
-                        && vertex.getCoordinate().getRow() == vertex2.getCoordinate().getRow()) {
+                if (vertC + 1 == vert2C && vertR == vert2R) {
                     edgeExist = true;
                 }
 
+                // if vertices are adjacent then create 2 edges between them for each vertex as source once
                 // add terrain cost to the edge depending on the target vertex
+                // add edge to the associated vertex as well
                 if (edgeExist) {
 
                     int terrainCost = vertex2.getCoordinate().getTerrainCost();
@@ -82,6 +97,7 @@ public class Graph {
                     vertex.addEdge(edge);
 
                     terrainCost = vertex.getCoordinate().getTerrainCost();
+
                     edge = new Edge(vertex2, vertex, 1 + terrainCost);
                     vertex2.addEdge(edge);
                 }

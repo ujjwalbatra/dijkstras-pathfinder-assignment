@@ -2,24 +2,37 @@ package pathFinder;
 
 public class Node {
     private Vertex vertex;
-    private Vertex previous;
+    private Node previous;
     private int cost;
 
-    public Node(Vertex vertex, Vertex previous, int cost) {
+    public Node(Vertex vertex) {
+        this.vertex = vertex;
+        this.previous = null;
+        this.cost = Integer.MAX_VALUE;
+    }
+
+    public Node(Vertex vertex, int cost) {
+        this.vertex = vertex;
+        this.previous = null;
+        this.cost = cost;
+    }
+
+    public Node(Vertex vertex, Node previous, int cost) {
         this.vertex = vertex;
         this.previous = previous;
         this.cost = cost;
     }
 
+
     public Vertex getVertex() {
         return vertex;
     }
 
-    public Vertex getPrevious() {
+    public Node getPrevious() {
         return previous;
     }
 
-    public void setPrevious(Vertex previous) {
+    public void setPrevious(Node previous) {
         this.previous = previous;
     }
 

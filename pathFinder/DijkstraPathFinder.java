@@ -9,10 +9,10 @@ public class DijkstraPathFinder implements PathFinder {
 
     private Graph graph;
     private Set<Node> nodesExplored;
-    private Queue<Node> frontier;
+    private List<Node> frontier;
     private Set<Vertex> sources;
     private Set<Vertex> destinations;
-    private Queue<Vertex> wayPoints;
+    private List<Vertex> wayPoints;
     private List<Coordinate> optimalPath;
     private int coordinatesExplored;
 
@@ -20,21 +20,15 @@ public class DijkstraPathFinder implements PathFinder {
 
         // make a graph of the given map and initialize the data structures used for Dijkstra's algorithm
         this.graph = new Graph(map);
-        this.nodesExplored = new HashSet<>();
         this.optimalPath = new ArrayList<>();
 
-        // priority queue in ascending order of cost of reaching the node (edge weight + terrain)
-        this.frontier = new PriorityQueue<>(new Comparator<Node>() {
-            @Override
-            public int compare(Node o1, Node o2) {
-                return o1.getCost() - o2.getCost();
-            }
-        });
+        // reset frontier and nodes explored
+        this.flashMemory();
 
         // get source vertex and destinations on the graph
         this.sources = this.graph.getSources();
         this.destinations = this.graph.getDestinations();
-
+        this.wayPoints = this.graph.getWayPoints();
         this.coordinatesExplored = 0;
     } // end of DijkstraPathFinder()
 
@@ -43,8 +37,8 @@ public class DijkstraPathFinder implements PathFinder {
     public List<Coordinate> findPath() {
         // You can replace this with your favourite list, but note it must be a
         // list type
-        List<Coordinate> path = new ArrayList<>();
-        int pathCost = 0;
+        List<Coordinate> path;
+        int pathCost = Integer.MAX_VALUE;
 
         Node srcNode = null;
         Node destNode = null;
@@ -52,40 +46,38 @@ public class DijkstraPathFinder implements PathFinder {
         // for every source destination combination
         for (Vertex src : this.sources) {
             for (Vertex dest : this.destinations) {
-                this.flashMomory();
+                this.flashMemory();
+                this.initialiseFrontier(src);
+
+                srcNode = frontier.get(0);
 
                 path = new ArrayList<>();
 
                 for (Node node : this.frontier) {
-
-                    if (src.equals(node.getVertex())) {
-                        srcNode = node;
-                    }
-
                     if (dest.equals(node.getVertex())) {
                         destNode = node;
                     }
                 }
 
-                tracePath(srcNode, destNode);
+                this.tracePath(srcNode, destNode);
 
                 int newPathCost = destNode.getCost();
 
-                if (newPathCost > pathCost) {
-                    Node currNode = destNode;
+                if (newPathCost < pathCost) {
+                    pathCost = newPathCost;
 
-                    while (!currNode.equals(srcNode)) {
+                    Node currNode = destNode;
+                    while (currNode.getCost() != 0) {
                         path.add(currNode.getVertex().getCoordinate());
-                        this.nodesExplored.remove(currNode);
-                        currNode = findExploredNodeForVertex(currNode.getPrevious());
+                        currNode = currNode.getPrevious();
                     }
+//                    path.add(currNode.getVertex().getCoordinate()); to add source vertex to the path as well
+                    Collections.reverse(path);
                     this.optimalPath = path;
-                    this.coordinatesExplored = nodesExplored.size();
                 }
 
             }
         }
-        Collections.reverse(this.optimalPath);
 
         return this.optimalPath;
     } // end of findPath()
@@ -100,39 +92,31 @@ public class DijkstraPathFinder implements PathFinder {
         return null;
     }
 
+    /**
+     * finds shortest path using dijktra's algorithm
+     *
+     * @param source      of the path
+     * @param destination of the path
+     */
     private void tracePath(Node source, Node destination) {
 
         if (source == null || destination == null) return;
 
-        Vertex prevVertex = null;
-
-        // add source node to the explored nodes with cost 0
-        for (Node currNode : this.frontier) {
-
-            if (currNode.equals(source)) {
-                this.frontier.remove(currNode);
-
-                currNode.setCost(0);
-                currNode.setPrevious(prevVertex);
-                this.nodesExplored.add(currNode);
-                updateNeighboursCost(currNode);
-                prevVertex = currNode.getVertex();
-                break;
-            }
-        }
-
         Node currNode;
 
-        while (!this.nodesExplored.contains(destination)) {
-            currNode = frontier.poll();
-            currNode.setPrevious(prevVertex);
-            prevVertex = currNode.getVertex();
+        while (!this.nodesExplored.contains(destination) && !this.frontier.isEmpty()) {
+            currNode = frontier.remove(0);
             updateNeighboursCost(currNode);
             this.nodesExplored.add(currNode);
         }
     }
 
 
+    /**
+     * update costs of the neighbour if it is lesser than current estimate
+     *
+     * @param node the node whose neighbours are to be updated
+     */
     private void updateNeighboursCost(Node node) {
 
         for (Edge edge : node.getVertex().getEdges()) {
@@ -143,22 +127,52 @@ public class DijkstraPathFinder implements PathFinder {
                     int predecessorCost = node.getCost();
 
                     // edge weight includes terrain cost
-                    int costOfReachingNeighbour = edge.getWeight();
-                    unexploredNode.setCost(predecessorCost + costOfReachingNeighbour);
+                    int costOfReachingNeighbour = edge.getWeight() + predecessorCost;
+
+                    // check if cost has reduced
+                    if (unexploredNode.getCost() > costOfReachingNeighbour) {
+                        unexploredNode.setCost(costOfReachingNeighbour);
+                        unexploredNode.setPrevious(node);
+                    }
                 }
             }
         }
+
+        this.sortFrontier();
     }
 
-    private void flashMomory() {
+    private void flashMemory() {
         this.nodesExplored = new HashSet<>();
-        this.frontier = new PriorityQueue<>(new Comparator<Node>() {
-            @Override
-            public int compare(Node o1, Node o2) {
-                return o1.getCost() - o2.getCost();
-            }
-        });
+        this.frontier = new ArrayList<>();
+    }
 
+    /**
+     * initialises the frontier with distance of source node as 0 and other nodes as infinity
+     *
+     * @param src source vertex for a path
+     */
+    private void initialiseFrontier(Vertex src) {
+        for (Vertex vertex : this.graph.getVertices()) {
+            Node newNode;
+
+            // if node is a source then add node to frontier with distance 0.
+            // else add node with distance infinity (Integer.MAX_VALUE)
+            if (vertex == src) {
+                newNode = new Node(vertex, 0);
+                this.frontier.add(newNode);
+            } else {
+                newNode = new Node(vertex);
+                this.frontier.add(newNode);
+            }
+        }
+        this.sortFrontier();
+    }
+
+    /**
+     * this is to rearrange elements in order of priorities.
+     */
+    private void sortFrontier() {
+        this.frontier.sort(Comparator.comparingInt(Node::getCost));
     }
 
 
