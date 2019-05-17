@@ -8,11 +8,11 @@ import java.util.*;
 public class Graph {
     private List<Vertex> vertices;
     private List<Edge> edges;
+    private List<Node> frontier;
+    private List<Vertex> wayPoints;
     private Set<Vertex> sources;
     private Set<Vertex> destinations;
-    private List<Vertex> wayPoints;
     private Set<Node> nodesExplored;
-    private List<Node> frontier;
 
     public Graph(PathMap map) {
         this.vertices = new ArrayList<>();
@@ -199,10 +199,6 @@ public class Graph {
 
     public List<Vertex> getVertices() {
         return vertices;
-    }
-
-    public List<Edge> getEdges() {
-        return edges;
     }
 
     public List<Vertex> getWayPoints() {

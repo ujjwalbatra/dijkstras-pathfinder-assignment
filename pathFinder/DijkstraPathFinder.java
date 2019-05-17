@@ -57,18 +57,21 @@ public class DijkstraPathFinder implements PathFinder {
                     }
                 }
 
+                // trace optimal path
                 this.graph.tracePath(srcNode, destNode);
 
                 int newPathCost = destNode.getCost();
 
+                // if path cost is smaller than previous then update optimal path
                 if (newPathCost < pathCost) {
                     pathCost = newPathCost;
-
                     Node currNode = destNode;
+
                     while (currNode.getCost() != 0) {
                         path.add(currNode.getVertex().getCoordinate());
                         currNode = currNode.getPrevious();
                     }
+
                     // path.add(currNode.getVertex().getCoordinate()); to add source vertex to the path as well
                     Collections.reverse(path);
                     this.optimalPath = path;
