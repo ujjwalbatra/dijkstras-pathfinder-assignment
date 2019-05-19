@@ -108,7 +108,7 @@ public class Graph {
     }
 
     /**
-     * finds shortest path using dijktra's algorithm
+     * finds shortest path using dijkstra's algorithm
      *
      * @param source      of the path
      * @param destination of the path

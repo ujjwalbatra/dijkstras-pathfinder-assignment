@@ -72,7 +72,7 @@ public class DijkstraPathFinder implements PathFinder {
                         currNode = currNode.getPrevious();
                     }
 
-                    // path.add(currNode.getVertex().getCoordinate()); to add source vertex to the path as well
+                    path.add(currNode.getVertex().getCoordinate());
                     Collections.reverse(path);
                     this.optimalPath = path;
                     this.coordinatesExplored = this.graph.getNodesExplored().size();
