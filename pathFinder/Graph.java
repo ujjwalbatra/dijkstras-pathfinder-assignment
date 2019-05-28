@@ -1,3 +1,4 @@
+
 package pathFinder;
 
 import map.Coordinate;
@@ -5,6 +6,9 @@ import map.PathMap;
 
 import java.util.*;
 
+/**
+ * represents a graph with vertices and edges
+ */
 public class Graph {
     private List<Vertex> vertices;
     private List<Edge> edges;
@@ -129,16 +133,19 @@ public class Graph {
     /**
      * initialises the frontier with distance of source node as 0 and other nodes as infinity
      *
-     * @param src source vertex for a path
+     * @param src         source vertex for a path
+     * @param initialCost initial cost of the source vertex. Not 0 in case of a continuing path in waypoints
      */
-    public void initialiseFrontier(Vertex src) {
+    public void initialiseFrontier(Vertex src, Node prev, int initialCost) {
+        this.flashMemory(); // reset frontier and nodes explored
+
         for (Vertex vertex : this.getVertices()) {
             Node newNode;
 
             // if node is a source then add node to frontier with distance 0.
             // else add node with distance infinity (Integer.MAX_VALUE)
             if (vertex == src) {
-                newNode = new Node(vertex, 0);
+                newNode = new Node(vertex, prev, initialCost);
                 this.frontier.add(newNode);
             } else {
                 newNode = new Node(vertex);

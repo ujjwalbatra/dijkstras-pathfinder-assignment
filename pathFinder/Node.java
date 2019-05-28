@@ -1,5 +1,8 @@
 package pathFinder;
 
+/**
+ * represents a node for implementation of Dijkstra's frontier
+ */
 public class Node {
     private Vertex vertex;
     private Node previous;
@@ -25,11 +28,11 @@ public class Node {
 
 
     public Vertex getVertex() {
-        return vertex;
+        return this.vertex;
     }
 
     public Node getPrevious() {
-        return previous;
+        return this.previous;
     }
 
     public void setPrevious(Node previous) {
@@ -37,7 +40,7 @@ public class Node {
     }
 
     public int getCost() {
-        return cost;
+        return this.cost;
     }
 
     public void setCost(int cost) {
