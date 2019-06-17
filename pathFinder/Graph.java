@@ -100,12 +100,12 @@ public class Graph {
                     int terrainCost = vertex2.getCoordinate().getTerrainCost();
 
                     Edge edge = new Edge(vertex, vertex2, 1 + terrainCost);
-                    vertex.addEdge(edge);
+                    vertex.addOutNeighbour(edge);
 
                     terrainCost = vertex.getCoordinate().getTerrainCost();
 
                     edge = new Edge(vertex2, vertex, 1 + terrainCost);
-                    vertex2.addEdge(edge);
+                    vertex2.addOutNeighbour(edge);
                 }
             }
         }
@@ -169,7 +169,7 @@ public class Graph {
      */
     private void updateNeighboursCost(Node node) {
 
-        for (Edge edge : node.getVertex().getEdges()) {
+        for (Edge edge : node.getVertex().getOutNeighbours()) {
             for (Node unexploredNode : this.frontier) {
 
                 Vertex neighbour = edge.getTo();
